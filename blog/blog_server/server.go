@@ -17,6 +17,8 @@ type server struct {
 }
 
 func main() {
+	// if we crash the go code, we get the file name and line number
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	fmt.Println("Blog Service started")
 
 	//port binding
