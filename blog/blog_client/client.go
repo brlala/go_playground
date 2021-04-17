@@ -6,6 +6,7 @@ import (
 	"go_playground/blog/blogpb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"io"
 	"log"
 )
 
@@ -35,24 +36,27 @@ func main() {
 	// create a new client
 	c := blogpb.NewBlogServiceClient(cc)
 
-	// CRUD API
-	blogId := CreateBlog(c)
-	ReadBlog(c, "asncas")
-	ReadBlog(c, "607b1395fbf3c071a83cc17e")
-	ReadBlog(c, blogId)
+	//// CRUD API
+	//blogId := CreateBlog(c)
+	////ReadBlog(c, "asncas")
+	////ReadBlog(c, "607b1395fbf3c071a83cc17e")
+	//ReadBlog(c, blogId)
+	//
+	//// Update Blog
+	//newBlog := &blogpb.Blog{
+	//	//Id: blogId,
+	//	Id:       blogId,
+	//	AuthorId: "Changed Author 1",
+	//	Content:  "Edited blog content",
+	//	Title:    "Content of the blog with addition",
+	//}
+	//UpdateBlog(c, newBlog)
+	//
+	//// Delete Blog
+	//DeleteBlog(c, blogId)
 
-	// Update Blog
-	newBlog := &blogpb.Blog{
-		//Id: blogId,
-		Id:       blogId,
-		AuthorId: "Changed Author 1",
-		Content:  "Edited blog content",
-		Title:    "Content of the blog with addition",
-	}
-	UpdateBlog(c, newBlog)
-
-	// Delete Blog
-	DeleteBlog(c, blogId)
+	// List Blog
+	ListBlog(c)
 }
 
 func CreateBlog(c blogpb.BlogServiceClient) string {
@@ -97,4 +101,24 @@ func DeleteBlog(c blogpb.BlogServiceClient, blogId string) {
 		return
 	}
 	fmt.Printf("Blog was deleted: %v\n", res)
+}
+
+func ListBlog(c blogpb.BlogServiceClient) {
+	// Update Blog
+	fmt.Println("Listing blogs")
+	stream, err := c.ListBlog(context.Background(), &blogpb.ListBlogRequest{})
+	if err != nil {
+		log.Fatalf("Error while calling ListBlog RPC: %v\n", err)
+		return
+	}
+	for {
+		res, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatalf("Error happened: %v", err)
+		}
+		fmt.Println(res)
+	}
 }

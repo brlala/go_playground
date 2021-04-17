@@ -112,7 +112,6 @@ func (*server) DeleteBlog(ctx context.Context, req *blogpb.DeleteBlogRequest) (*
 	}
 
 	filter := bson.M{"_id": oid}
-
 	res, err := collection.DeleteOne(ctx, filter)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, fmt.Sprintf("Cannot delete object in MongoDB: %v", err))
@@ -123,6 +122,28 @@ func (*server) DeleteBlog(ctx context.Context, req *blogpb.DeleteBlogRequest) (*
 	}
 
 	return &blogpb.DeleteBlogResponse{BlogId: req.GetBlogId()}, nil
+}
+func (*server) ListBlog(req *blogpb.ListBlogRequest, stream blogpb.BlogService_ListBlogServer) error {
+	fmt.Println("List blog request")
+	cursor, err := collection.Find(context.Background(), primitive.D{})
+	if err != nil {
+		return status.Errorf(codes.Internal, fmt.Sprintf("Unknown internal error: %v", err))
+	}
+	defer cursor.Close(context.Background())
+	for cursor.Next(context.Background()) {
+		data := &blogItem{}
+		err := cursor.Decode(data)
+		if err != nil {
+			return status.Errorf(codes.Internal, fmt.Sprintf("Error while decoding data from MongoDB: %v", err))
+		}
+		stream.Send(&blogpb.ListBlogResponse{
+			Blog: dataToBlogPb(data),
+		})
+	}
+	if err := cursor.Err(); err != nil {
+		return status.Errorf(codes.Internal, fmt.Sprintf("Unknown internal error: %v", err))
+	}
+	return nil
 }
 
 func dataToBlogPb(data *blogItem) *blogpb.Blog {
