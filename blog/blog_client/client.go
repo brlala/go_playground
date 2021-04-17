@@ -50,6 +50,9 @@ func main() {
 		Title:    "Content of the blog with addition",
 	}
 	UpdateBlog(c, newBlog)
+
+	// Delete Blog
+	DeleteBlog(c, blogId)
 }
 
 func CreateBlog(c blogpb.BlogServiceClient) string {
@@ -83,4 +86,15 @@ func UpdateBlog(c blogpb.BlogServiceClient, blog *blogpb.Blog) {
 		return
 	}
 	fmt.Printf("Blog was updated: %v\n", res)
+}
+
+func DeleteBlog(c blogpb.BlogServiceClient, blogId string) {
+	// Update Blog
+	fmt.Println("Deleting the blog")
+	res, err := c.DeleteBlog(context.Background(), &blogpb.DeleteBlogRequest{BlogId: blogId})
+	if err != nil {
+		fmt.Printf("Error happened while deleting: %v\n", err)
+		return
+	}
+	fmt.Printf("Blog was deleted: %v\n", res)
 }
