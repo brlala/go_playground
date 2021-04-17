@@ -27,6 +27,7 @@ type GreetServiceClient interface {
 	// Bi-Directional Streaming
 	GreetEveryone(ctx context.Context, opts ...grpc.CallOption) (GreetService_GreetEveryoneClient, error)
 	// Unary with Deadline
+	// this rpc will complete in no less than 3000ms
 	GreetWithDeadline(ctx context.Context, in *GreetWithDeadlineRequest, opts ...grpc.CallOption) (*GreetWithDeadlineResponse, error)
 }
 
@@ -166,6 +167,7 @@ type GreetServiceServer interface {
 	// Bi-Directional Streaming
 	GreetEveryone(GreetService_GreetEveryoneServer) error
 	// Unary with Deadline
+	// this rpc will complete in no less than 3000ms
 	GreetWithDeadline(context.Context, *GreetWithDeadlineRequest) (*GreetWithDeadlineResponse, error)
 	mustEmbedUnimplementedGreetServiceServer()
 }
