@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"go_playground/greet/greetpb"
 	"google.golang.org/grpc"
@@ -21,5 +22,12 @@ func main() {
 
 	// create a new client
 	c := greetpb.NewGreetServiceClient(cc)
-	fmt.Printf("Created client: %f", c)
+	//fmt.Printf("Created client: %f", c)
+	req := &greetpb.GreetRequest{
+		Greeting: &greetpb.Greeting{
+			FirstName: "Stephanie",
+			LastName:  "Hawking",
+		},
+	}
+	c.Greet(context.Background(), req)
 }

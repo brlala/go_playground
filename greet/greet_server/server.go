@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"go_playground/greet/greetpb"
 	"google.golang.org/grpc"
@@ -8,7 +9,20 @@ import (
 	"net"
 )
 
-type server struct {
+type server struct{}
+
+func (*server) Greet(ctx context.Context, req *greetpb.GreetRequest) (*greetpb.GreetResponse, error) {
+	fmt.Printf("Greet function was invoked with %v", req)
+	// extracting info from greet request
+	firstName := req.GetGreeting().GetFirstName()
+	result := "Hello " + firstName
+
+	// creating a response for it
+	res := &greetpb.GreetResponse{
+		Result: result,
+	}
+
+	return res, nil
 }
 
 func main() {
