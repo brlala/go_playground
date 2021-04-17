@@ -27,3 +27,13 @@ https://grpc.io/docs/languages/go/quickstart/
    1. In real life we will send the server.csr to whoever is the CA
    2. They will sign it for a certain amount of days, using the files, server.csr, ca.crt and ca.key to output server.crt.
 5. Step 5: Convert the server certificate to .pem format (server.pem) - usable by gRPC
+
+# Doing reflection with Evans CLI
+1. `evans -r repl` - Start the EVANS CLI
+2. `show package` - show all package available
+3. `show service` - show all RPC method and request response type
+4. `desc GreetRequest` - see the implementation and description of the GreetRequest
+4. `package greet` - go into package Greet
+5. `show service` - show all service 
+6. `service GreetService` - go into GreetService
+7. `call Greet` - call the method Greet

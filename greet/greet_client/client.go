@@ -16,7 +16,7 @@ import (
 func main() {
 	fmt.Println("Hello I'm a client")
 
-	tls := true
+	tls := false
 	// grpc by default has SSL, this line is to remove it, disable SSL and open a connection to the port
 	opts := grpc.WithInsecure()
 
