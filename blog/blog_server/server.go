@@ -1,7 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"go_playground/blog/blogpb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -10,17 +14,37 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"time"
 )
+
+var collection *mongo.Collection
 
 type server struct {
 	blogpb.UnimplementedBlogServiceServer
 }
 
+type blogItem struct {
+	ID       primitive.ObjectID `bson:"_id,omitempty"` // it will map to a field in bson called "_id", if it's not there it will omit it
+	AuthorID string             `bson:"author_id"`
+	Content  string             `bson:"content"`
+	Title    string             `bson:"title"`
+}
+
 func main() {
 	// if we crash the go code, we get the file name and line number
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	fmt.Println("Blog Service started")
 
+	// connecting mongodb database
+	fmt.Println("Connecting to MongoDB")
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://root:password@localhost:27017"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	collection = client.Database("mydb").Collection("blog")
+
+	fmt.Println("Blog Service started")
 	//port binding
 	lis, err := net.Listen("tcp", "0.0.0.0:50051")
 
@@ -66,5 +90,7 @@ func main() {
 	s.Stop()
 	fmt.Println("Stopping the listener")
 	lis.Close()
+	fmt.Println("Closing MongoDB Connection")
+	client.Disconnect(ctx)
 	fmt.Println("End of Program")
 }
