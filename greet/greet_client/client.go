@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc"
 	"io"
 	"log"
+	"time"
 )
 
 func main() {
@@ -25,7 +26,8 @@ func main() {
 	c := greetpb.NewGreetServiceClient(cc)
 	//fmt.Printf("Created client: %f", c)
 	//doUnary(c)
-	doServerStreaming(c)
+	//doServerStreaming(c)
+	doClientStreaming(c)
 }
 
 func doUnary(c greetpb.GreetServiceClient) {
@@ -65,5 +67,38 @@ func doServerStreaming(c greetpb.GreetServiceClient) {
 		}
 		log.Printf("Response from Greet: %v", msg.GetResult())
 	}
+}
+
+func doClientStreaming(c greetpb.GreetServiceClient) {
+	fmt.Println("Starting to do a Client Streaming RPC...")
+
+	stream, err := c.LongGreet(context.Background())
+	if err != nil {
+		log.Fatalf("error while calling LongGreet RPC: %v", err)
+	}
+
+	request := []*greetpb.LongGreetRequest{
+		{Greeting: &greetpb.Greeting{FirstName: "Stephane", LastName: "Row"}},
+		{Greeting: &greetpb.Greeting{FirstName: "John", LastName: "Row"}},
+		{Greeting: &greetpb.Greeting{FirstName: "Lucy", LastName: "Row"}},
+		{Greeting: &greetpb.Greeting{FirstName: "Mark", LastName: "Row"}},
+		{Greeting: &greetpb.Greeting{FirstName: "Piper", LastName: "Row"}},
+	}
+
+	// We iterate over our slice and send each message individually
+	for _, req := range request {
+		fmt.Printf("Sending req: %v\n", req)
+		err := stream.Send(req)
+		if err != nil {
+			log.Fatalf("error while sending request to LongGreet RPC: %v", err)
+		}
+		time.Sleep(1000 * time.Millisecond)
+	}
+
+	res, err := stream.CloseAndRecv()
+	if err != nil {
+		log.Fatalf("error while receiving response from LongGreet: %v", err)
+	}
+	fmt.Printf("LongGreet Response: %v\n", res)
 
 }

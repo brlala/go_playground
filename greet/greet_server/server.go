@@ -48,8 +48,8 @@ func (*server) GreetManyTimes(req *greetpb.GreetManyTimesRequest, stream greetpb
 	return nil
 }
 
-func (*server) LongGreetLongGreet(stream greetpb.GreetService_LongGreetServer) error {
-	fmt.Printf("LongGreet function was invoked with a streaming request")
+func (*server) LongGreet(stream greetpb.GreetService_LongGreetServer) error {
+	fmt.Printf("LongGreet function was invoked with a streaming request\n")
 	result := ""
 	// Client streaming api, and send one response back
 	for {
@@ -59,7 +59,8 @@ func (*server) LongGreetLongGreet(stream greetpb.GreetService_LongGreetServer) e
 			return stream.SendAndClose(&greetpb.LongGreetResponse{
 				Result: result,
 			})
-		} else if err != nil {
+		}
+		if err != nil {
 			log.Fatalf("Error while reading client stream: %v", err)
 		}
 
