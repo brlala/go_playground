@@ -16,7 +16,7 @@ type server struct {
 }
 
 func (*server) Greet(ctx context.Context, req *greetpb.GreetRequest) (*greetpb.GreetResponse, error) {
-	fmt.Printf("Greet function was invoked with %v", req)
+	fmt.Printf("Greet function was invoked with %v\n", req)
 	// extracting info from greet request
 	firstName := req.GetGreeting().GetFirstName()
 	result := "Hello " + firstName
@@ -30,7 +30,7 @@ func (*server) Greet(ctx context.Context, req *greetpb.GreetRequest) (*greetpb.G
 }
 
 func (*server) GreetManyTimes(req *greetpb.GreetManyTimesRequest, stream greetpb.GreetService_GreetManyTimesServer) error {
-	fmt.Printf("GreetManyTimes function was invoked with %v", req)
+	fmt.Printf("GreetManyTimes function was invoked with %v\n", req)
 	// Get one response and send stream response
 	firstName := req.GetGreeting().GetFirstName()
 	for i := 0; i < 10; i++ {
