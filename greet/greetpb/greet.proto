@@ -61,5 +61,6 @@ service GreetService{
   rpc GreetEveryone(stream GreetEveryoneRequest) returns (stream GreetEveryoneResponse);
 
   // Unary with Deadline
+  // this rpc will complete in no less than 3000ms
   rpc GreetWithDeadline(GreetWithDeadlineRequest) returns (GreetWithDeadlineResponse) {};
 }
