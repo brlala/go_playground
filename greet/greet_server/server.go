@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go_playground/greet/greetpb"
 	"google.golang.org/grpc"
+	"io"
 	"log"
 	"net"
 	"strconv"
@@ -45,6 +46,41 @@ func (*server) GreetManyTimes(req *greetpb.GreetManyTimesRequest, stream greetpb
 		time.Sleep(1000 * time.Millisecond)
 	}
 	return nil
+}
+
+func (*server) LongGreetLongGreet(stream greetpb.GreetService_LongGreetServer) error {
+	fmt.Printf("LongGreet function was invoked with a streaming request")
+	result := ""
+	// Client streaming api, and send one response back
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			// we have finished reading the client stream, send one response back
+			return stream.SendAndClose(&greetpb.LongGreetResponse{
+				Result: result,
+			})
+		} else if err != nil {
+			log.Fatalf("Error while reading client stream: %v", err)
+		}
+
+		firstName := req.GetGreeting().GetFirstName()
+		result += "Hello " + firstName + "! "
+	}
+	//fmt.Printf("GreetManyTimes function was invoked with %v\n", req)
+	//// Get one response and send stream response
+	//firstName := req.GetGreeting().GetFirstName()
+	//for i := 0; i < 10; i++ {
+	//	result := "Hello " + firstName + " number " + strconv.Itoa(i)
+	//	res := &greetpb.GreetManyTimesResponse{
+	//		Result: result,
+	//	}
+	//	err := stream.Send(res)
+	//	if err != nil {
+	//		return err
+	//	}
+	//	time.Sleep(1000 * time.Millisecond)
+	//}
+	//return nil
 }
 
 func main() {
